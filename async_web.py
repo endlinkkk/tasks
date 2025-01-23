@@ -6,27 +6,35 @@ from aiohttp.client_exceptions import ClientConnectionError
 urls = [
     "https://example.com",
     "https://httpbin.org/status/404",
-    "https://nonexistent.url"
+    "https://nonexistent.url",
+    "https://example.com",
+    "https://example.com",
+    "https://example.com",
+    "https://example.com",
+    "https://example.com",
+    "https://example.com",
+    "https://example.com",
 ]
 
+sem = asyncio.Semaphore(5)
 
-async def async_web_server(url: str) -> str:
-    async with aiohttp.ClientSession() as session:
+async def async_web_server(url: str, session: aiohttp.ClientSession) -> int:
+    async with sem:
         try:
             async with session.get(url) as response:
-
                 status = response.status
-                print("Status:", response.status)
         except ClientConnectionError:
             status = 0
-
     return status
 
 
+
 async def fetch_urls(urls: list[str], file_path: str):
-    tasks = [async_web_server(url) for url in urls]
-    result = await asyncio.gather(*tasks)
-    for url, result in zip(urls, result):  # noqa: B020
+    async with aiohttp.ClientSession() as session:
+        tasks = [async_web_server(url, session) for url in urls]
+        results = await asyncio.gather(*tasks)
+
+    for url, result in zip(urls, results):  # noqa: B020
         print({f"url: {url}, status_code: {result}"})
 
 
