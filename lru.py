@@ -1,40 +1,41 @@
 import unittest.mock
 from functools import wraps
+from typing import Callable
 
 
-def lru_cache(*args, **kwargs):
+def _lru_wrapper(func: Callable, maxsize: int = 128):
     memo = {}
-    if kwargs.get('maxsize'):
-        maxsize = kwargs['maxsize']
-        def wrapper1(func):
-            @wraps(func)
-            def wrapper2(*args_f, **kwargs_f):
-                if len(memo) >= maxsize:
-                    key_ = next(iter(memo.keys()))
-                    del memo[key_]
-                key_ = frozenset([*args_f, *kwargs_f.values()])
-                if memo.get(key_):
-                    result = memo[key_]
-                else:
-                    result = func(*args_f, **kwargs_f)
-                    memo[frozenset(key_)] = result
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if len(memo) >= maxsize:
+            key_ = next(iter(memo.keys()))
+            del memo[key_]
+        key_ = frozenset([*args, *kwargs.values()])
+        if memo.get(key_):
+            result = memo[key_]
+        else:
+            result = func(*args, **kwargs)
+            memo[frozenset(key_)] = result
+        return result
+    return wrapper
 
-                return result 
-            return wrapper2
-        return wrapper1
-    else:
-        func = args[0]
-        @wraps(func)
-        def wrapper(*args_f, **kwargs_f):
-            key_ = frozenset([*args_f, *kwargs_f.values()])
-            if memo.get(key_):
-                result = memo[key_]
-            else:
-                result = func(*args_f, **kwargs_f)
-                memo[frozenset(key_)] = result
-
-            return result 
+def lru_cache(maxsize=128):
+    if callable(maxsize):
+        user_function, maxsize = maxsize, 128
+        wrapper = _lru_wrapper(user_function, maxsize)
         return wrapper
+    elif isinstance(maxsize, int):
+        if maxsize < 0:
+            maxsize = 0
+    elif maxsize is not None:
+        raise TypeError(
+            'Expected first argument to be an integer, a callable, or None')
+
+    def decorated_function(func):
+        return _lru_wrapper(func, maxsize)
+
+    return decorated_function
+
 
 
 
