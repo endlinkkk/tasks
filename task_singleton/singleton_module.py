@@ -1,6 +1,5 @@
 from singleton.singleton import s
 
-
 if __name__ == '__main__':
     s1 = s
     s2 = s

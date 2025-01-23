@@ -1,6 +1,7 @@
 import unittest.mock
 from functools import wraps
 
+
 def lru_cache(*args, **kwargs):
     memo = {}
     if kwargs.get('maxsize'):
@@ -53,7 +54,7 @@ def multiply(a: int, b: int) -> int:
 
 
 if __name__ == '__main__':
-    
+
     assert sum(1, 2) == 3
     assert sum(3, 4) == 7
 

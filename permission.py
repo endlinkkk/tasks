@@ -5,7 +5,7 @@ class PermissionError(Exception):
     @property
     def message(self):
         return 'Permission Error'
-    
+
 
 class MyRequest:
     def __init__(self, role: str):
