@@ -4,13 +4,12 @@ import os
 import psycopg2
 
 connection_params = {
-    'dbname': 'postgres',
-    'user': 'postgres',
-    'password': 'root',
-    'host': 'localhost',
-    'port': '5433'      
+    "dbname": "postgres",
+    "user": "postgres",
+    "password": "root",
+    "host": "localhost",
+    "port": "5433",
 }
-
 
 
 def create_table() -> None:
@@ -31,6 +30,7 @@ def create_table() -> None:
     finally:
         if con:
             con.close()
+
 
 def fill_table() -> None:
     tasks = [
@@ -60,23 +60,31 @@ def fill_table() -> None:
         if con:
             con.close()
 
+
 def complete_task(task_id) -> None:
     try:
         con = psycopg2.connect(**connection_params)
         cur = con.cursor()
-        cur.execute("""
+        cur.execute(
+            """
             SELECT * FROM tasks WHERE id = %s FOR UPDATE;
-        """, (task_id,))
+        """,
+            (task_id,),
+        )
 
-        cur.execute("""
+        cur.execute(
+            """
             UPDATE tasks SET status = 'completed', updated_at = CURRENT_TIMESTAMP
             WHERE id = %s;
-        """, (task_id,))
+        """,
+            (task_id,),
+        )
         con.commit()
 
     finally:
         if con:
             con.close()
+
 
 def fetch_task() -> None:
     worker_id = os.getpid()
@@ -89,10 +97,16 @@ def fetch_task() -> None:
         task = cur.fetchone()
         if task:
             task_id = task[0]
-            cur.execute("""
+            cur.execute(
+                """
                 UPDATE tasks SET status = 'processing', updated_at = CURRENT_TIMESTAMP, worker_id = %s
                 WHERE id = %s AND worker_id IS NULL;
-            """, (worker_id, task_id,))
+            """,
+                (
+                    worker_id,
+                    task_id,
+                ),
+            )
         con.commit()
         if task and task_id:
             complete_task(task_id)

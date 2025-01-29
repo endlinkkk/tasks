@@ -5,36 +5,64 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Author',
+            name="Author",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('firts_name', models.CharField(max_length=255, verbose_name='firts_name')),
-                ('last_name', models.CharField(max_length=255, verbose_name='last_name')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "firts_name",
+                    models.CharField(max_length=255, verbose_name="firts_name"),
+                ),
+                (
+                    "last_name",
+                    models.CharField(max_length=255, verbose_name="last_name"),
+                ),
             ],
             options={
-                'verbose_name': 'Author',
-                'verbose_name_plural': 'Authors',
+                "verbose_name": "Author",
+                "verbose_name_plural": "Authors",
             },
         ),
         migrations.CreateModel(
-            name='Book',
+            name="Book",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=255, verbose_name='title')),
-                ('count', models.PositiveIntegerField(verbose_name='count books')),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='books', to='api.author', verbose_name='author')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=255, verbose_name="title")),
+                ("count", models.PositiveIntegerField(verbose_name="count books")),
+                (
+                    "author",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="books",
+                        to="api.author",
+                        verbose_name="author",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Book',
-                'verbose_name_plural': 'Books',
+                "verbose_name": "Book",
+                "verbose_name_plural": "Books",
             },
         ),
     ]

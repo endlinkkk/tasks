@@ -6,7 +6,7 @@ from redis import Redis
 
 
 class RedisClient:
-    host: str = 'localhost'
+    host: str = "localhost"
     port: int = 6389
 
     @property
@@ -37,7 +37,7 @@ def make_api_request(rate_limiter: RateLimiter):
         pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     rc = RedisClient()
     rate_limiter = RateLimiter(rc)
 
@@ -50,4 +50,3 @@ if __name__ == '__main__':
             print("Rate limit exceed!")
         else:
             print("All good")
-

@@ -4,61 +4,33 @@ import os
 import time
 from functools import wraps
 
-import psycopg2
+from redis import Redis
+from redis.exceptions import LockError
 
-connection_params = {
-    'dbname': 'postgres',
-    'user': 'postgres',
-    'password': 'root',
-    'host': 'localhost',
-    'port': '5433'      
-}
+redis_client = Redis(host="localhost", port=6389, db=0)
 
-
-
-def create_table() -> None:
-    try:
-        con = psycopg2.connect(**connection_params)
-        cur = con.cursor()
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS funcs (
-                id SERIAL PRIMARY KEY,
-                func_name TEXT NOT NULL
-            )
-        """)
-        con.commit()
-    finally:
-        if con:
-            con.close()
-
-
-
-def insert_func() -> None:
-    con = psycopg2.connect(**connection_params)
-    cur = con.cursor()
-    cur.execute(
-                """
-                INSERT INTO funcs (func_name) VALUES ('process_transaction');
-                """
-            )
-    con.commit()
 
 def single(max_processing_time: datetime):
     def wrapper1(function):
         @wraps(function)
         def wrapper2(*args, **kwargs):
-            con = psycopg2.connect(**connection_params)
-            cur = con.cursor()
-            cur.execute("""
-            SET LOCAL lock_timeout = %s;
-            SELECT * FROM funcs WHERE func_name = %s FOR UPDATE SKIP LOCKED;
-        """, (str(max_processing_time.seconds), function.__name__,))
-            func_metadata = cur.fetchone()
-            if func_metadata:
-                print(os.getpid())
-                res = function(*args, **kwargs)
-                return res
+            lock_name = f"lock:{function.__name__}"
+            lock = redis_client.lock(lock_name, timeout=max_processing_time.seconds)
+            try:
+                acquired = lock.acquire(blocking=False)
+                if not acquired:
+                    return "Function is locked by another process"
+
+                result = function(*args, **kwargs)
+                return result
+            finally:
+                try:
+                    lock.release()
+                except LockError:
+                    pass
+
         return wrapper2
+
     return wrapper1
 
 
@@ -66,7 +38,6 @@ def single(max_processing_time: datetime):
 def process_transaction():
     print(os.getpid())
     time.sleep(2)
-
 
 
 def start_process(c_processes: int) -> None:
@@ -81,6 +52,4 @@ def start_process(c_processes: int) -> None:
 
 
 if __name__ == "__main__":
-    create_table()
-    insert_func()
-    start_process(8)
+    start_process(2)

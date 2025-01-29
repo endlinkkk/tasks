@@ -4,7 +4,7 @@ from redis import Redis
 
 
 class RedisClient:
-    host: str = 'localhost'
+    host: str = "localhost"
     port: int = 6389
 
     @property
@@ -17,22 +17,22 @@ class RedisQueue:
         self.client = client.get_redis
 
     def publish(self, msg: dict):
-        self.client.rpush('q', pickle.dumps(msg))
+        self.client.rpush("q", pickle.dumps(msg))
 
     def consume(self) -> dict:
-        data = self.client.lpop('q')
+        data = self.client.lpop("q")
         if data:
             return pickle.loads(data)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     rc = RedisClient()
     q = RedisQueue(client=rc)
-    q.publish({'a': 1})
-    q.publish({'b': 2})
-    q.publish({'c': 3})
+    q.publish({"a": 1})
+    q.publish({"b": 2})
+    q.publish({"c": 3})
 
-    assert q.consume() == {'a': 1}
-    assert q.consume() == {'b': 2}
-    assert q.consume() == {'c': 3}
-    print('Good')
+    assert q.consume() == {"a": 1}
+    assert q.consume() == {"b": 2}
+    assert q.consume() == {"c": 3}
+    print("Good")
