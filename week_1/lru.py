@@ -5,6 +5,7 @@ from typing import Callable
 
 def _lru_wrapper(func: Callable, maxsize: int = 128):
     memo = {}
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         if len(memo) >= maxsize:
@@ -17,7 +18,9 @@ def _lru_wrapper(func: Callable, maxsize: int = 128):
             result = func(*args, **kwargs)
             memo[frozenset(key_)] = result
         return result
+
     return wrapper
+
 
 def lru_cache(maxsize=128):
     if callable(maxsize):
@@ -28,15 +31,12 @@ def lru_cache(maxsize=128):
         if maxsize < 0:
             maxsize = 0
     elif maxsize is not None:
-        raise TypeError(
-            'Expected first argument to be an integer, a callable, or None')
+        raise TypeError("Expected first argument to be an integer, a callable, or None")
 
     def decorated_function(func):
         return _lru_wrapper(func, maxsize)
 
     return decorated_function
-
-
 
 
 @lru_cache
@@ -54,8 +54,7 @@ def multiply(a: int, b: int) -> int:
     return a * b
 
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     assert sum(1, 2) == 3
     assert sum(3, 4) == 7
 

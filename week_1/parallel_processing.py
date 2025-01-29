@@ -7,15 +7,16 @@ from functools import wraps
 
 COUNT = 100000
 logging.basicConfig(
-    filename='result.csv',
+    filename="result.csv",
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
 
 def generate_data(n: int) -> list[int]:
     return [random.randint(1, 1000) for _ in range(n)]
+
 
 def process_number(number: int) -> int:
     factorial = 1
@@ -32,8 +33,8 @@ def timer(func):
         func(*args, **kwargs)
         end = datetime.now() - start
         logger.info(f"{func.__name__}; Lead time (ms): {end.microseconds / 1000}")
-    return wrapper
 
+    return wrapper
 
 
 # А - Пул потоков
@@ -55,6 +56,7 @@ def producer(q: multiprocessing.Queue):
         q.put(number)
     q.put(None)
 
+
 def consumer(q: multiprocessing.Queue):
     while True:
         item = q.get()
@@ -63,11 +65,9 @@ def consumer(q: multiprocessing.Queue):
         process_number(item)
 
 
-
 # C - Отдельные процессы и очереди
 @timer
 def test_C():
-
     q = multiprocessing.Queue()
     process1 = multiprocessing.Process(target=producer, args=(q,))
     process2 = multiprocessing.Process(target=consumer, args=(q,))
@@ -87,8 +87,7 @@ def test_D():
         process_number(number)
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_A()
     test_B()
     test_C()

@@ -208,4 +208,5 @@ pyrightconfig.json
 
 cd.py
 result.csv
+*.db
 # End of https://www.toptal.com/developers/gitignore/api/python,macos

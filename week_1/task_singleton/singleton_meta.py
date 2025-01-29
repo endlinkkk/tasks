@@ -10,6 +10,7 @@ class MyMetaSingleton(type):
 class Singleton(metaclass=MyMetaSingleton):
     pass
 
+
 if __name__ == "__main__":
     s1 = Singleton()
     s2 = Singleton()

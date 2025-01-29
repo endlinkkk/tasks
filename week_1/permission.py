@@ -4,7 +4,7 @@ from functools import wraps
 class PermissionError(Exception):
     @property
     def message(self):
-        return 'Permission Error'
+        return "Permission Error"
 
 
 class MyRequest:
@@ -20,19 +20,21 @@ def access_control(roles: list[str]):
                 return func(request)
             else:
                 raise PermissionError
+
         return wrapper2
+
     return wrapper1
 
 
-@access_control(roles=['admin', 'moderator'])
+@access_control(roles=["admin", "moderator"])
 def my_func(request: MyRequest):
-    print(f'{request.role} is working...')
+    print(f"{request.role} is working...")
 
 
-if __name__ == '__main__':
-    r1 = MyRequest('admin')
-    r2 = MyRequest('moderator')
-    r3 = MyRequest('anonim')
+if __name__ == "__main__":
+    r1 = MyRequest("admin")
+    r2 = MyRequest("moderator")
+    r3 = MyRequest("anonim")
 
     try:
         my_func(r1)

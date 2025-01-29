@@ -18,6 +18,7 @@ urls = [
 
 sem = asyncio.Semaphore(5)
 
+
 async def async_web_server(url: str, session: aiohttp.ClientSession) -> int:
     async with sem:
         try:
@@ -26,7 +27,6 @@ async def async_web_server(url: str, session: aiohttp.ClientSession) -> int:
         except ClientConnectionError:
             status = 0
     return status
-
 
 
 async def fetch_urls(urls: list[str], file_path: str):
@@ -38,6 +38,5 @@ async def fetch_urls(urls: list[str], file_path: str):
         print({f"url: {url}, status_code: {result}"})
 
 
-
-if __name__ == '__main__':
-    asyncio.run(fetch_urls(urls, './results.jsonl'))
+if __name__ == "__main__":
+    asyncio.run(fetch_urls(urls, "./results.jsonl"))
