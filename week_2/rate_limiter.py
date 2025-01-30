@@ -1,6 +1,5 @@
 import random
 import time
-from uuid import uuid4
 
 from redis import Redis
 
@@ -19,14 +18,33 @@ class RateLimitExceed(Exception):
 
 
 class RateLimiter:
+    key = "api_rate_limiter"
+
     def __init__(self, client: RedisClient):
         self.client = client.get_redis
 
     def test(self) -> bool:
-        if self.client.dbsize() >= 5:
+        try:
+            current_time = int(time.time())
+            to_remove = []
+
+            for t in self.client.smembers(self.key):
+                if (current_time - int(t)) > 3:
+                    to_remove.append(t)
+
+            for t in to_remove:
+                self.client.srem(self.key, t)
+
+            if self.client.scard(self.key) > 3:
+                return False
+
+            cur_unix_time = current_time
+            self.client.sadd(self.key, cur_unix_time)
+            return True
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
             return False
-        self.client.setex(name=str(uuid4()), time=3, value=0)
-        return True
 
 
 def make_api_request(rate_limiter: RateLimiter):
@@ -42,7 +60,7 @@ if __name__ == "__main__":
     rate_limiter = RateLimiter(rc)
 
     for _ in range(50):
-        time.sleep(random.randint(1, 2))
+        time.sleep(random.randint(0, 1))
 
         try:
             make_api_request(rate_limiter)

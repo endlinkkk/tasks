@@ -23,9 +23,7 @@ class BookView(ModelViewSet):
     @action(detail=True, methods=["post"])
     def book_buy(self, request: Request, id: int):
         with transaction.atomic():
-            book = get_object_or_404(
-                Book.objects.select_for_update(skip_locked=True), pk=id
-            )
+            book = get_object_or_404(Book.objects.select_for_update(), pk=id)
             if book.count > 0:
                 book.count = F("count") - 1
                 book.save()
