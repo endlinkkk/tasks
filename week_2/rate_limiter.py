@@ -35,7 +35,7 @@ class RateLimiter:
             for t in to_remove:
                 self.client.srem(self.key, t)
 
-            if self.client.scard(self.key) > 3:
+            if self.client.scard(self.key) > 5:
                 return False
 
             cur_unix_time = current_time
